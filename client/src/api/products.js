@@ -1,5 +1,5 @@
 import axios from "axios";
-import { productsApiUrl } from "../consts";
+import { productsApiUrl } from "../constants";
 
 export const getProducts = async () => {
   try {
