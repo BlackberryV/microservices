@@ -2,96 +2,125 @@
 
 const express = require('express')
 const bodyParser = require('body-parser');
+const { Pool } = require('pg');
 var cors = require('cors')
 const PORT = 8080
 
-let products = [
-    {
-        id: 1,
-        title: 'apple',
-        description: 'good fruit',
-        price: 5,
-        category: 'food',
-      },
-      {
-        id: 2,
-        title: 'iphone',
-        description: 'expensive phone',
-        price: 1000,
-        category: 'smartphones',
-      },
-      {
-        id: 3,
-        title: 'nike no air',
-        description: 'white shoes',
-        price: 200,
-        category: 'clothes',
-      },
-      {
-        id: 4,
-        title: 'zubrovka',
-        description: '...',
-        price: 25,
-        category: 'alcohol',
-      },
-      {
-        id: 5,
-        title: 'fotball ball',
-        description: 'good ball',
-        price: 55,
-        category: 'sport',
-      },
-];
+const app = express();
 
-const app = express()
+const pool = new Pool({
+  user: "demo",
+  host: "postgres",
+  database: "demo",
+  password: "demo",
+  port: 5432
+})
+
+console.log(pool);
+
+pool.connect()
+  .then(() => {
+    return pool.query(`
+      CREATE TABLE IF NOT EXISTS products (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        price TEXT NOT NULL
+      )
+    `);
+  })
+  .then(() => {
+    console.log('Successfully connected to database');
+  })
+  .catch((err) => {
+    console.error('Error connecting to database:', err);
+  });
+
 app.use(bodyParser.json());
 app.use(cors());
 
 app.get('/products/:id', (req, res) => {
-  const product = products.find(f => f.id === parseInt(req.params.id));
-  if (!product) {
-    res.status(404).send('product not found');
-  } else {
-    res.send(product);
-  }
+  const query = {
+    text: 'SELECT * FROM products WHERE id = $1',
+    values: [req.params.id],
+  };
+  pool.query(query)
+    .then((result) => {
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'product not found' });
+      } else {
+        res.json(result.rows[0]);
+      }
+    })
+    .catch((err) => {
+      console.log(query);
+      res.status(500).json({ error: 'Failed to retrieve product' });
+    });
 });
 
 app.get('/products', (req, res) => {
-  res.send(products);
+  const query = {
+    text: 'SELECT * FROM products',
+  };
+  pool.query(query)
+    .then((result) => res.json(result.rows))
+    .catch((err) => {
+      res.status(500).json({ error: 'Failed to retrieve products' });
+    });
 });
 
 app.post('/products', (req, res) => {
-  const product = req.body;
-  product.id = products.length + 1;
-  products.push(product);
-  res.send(product);
+  const { name, price } = req.body;
+  const query = {
+    text: 'INSERT INTO products(name, price) VALUES($1, $2) RETURNING *',
+    values: [name, price],
+  };
+  pool.query(query)
+    .then((result) => res.status(201).json(result.rows[0]))
+    .catch((err) => {
+      console.error('Error adding product:', err);
+      res.status(500).json({ error: 'Failed to add product' });
+    });
 });
 
 app.put('/products/:id', (req, res) => {
-  const product = products.find(f => f.id === parseInt(req.params.id));
-  if (!product) {
-    res.status(404).send('product not found');
-  } else {
-    product.title = req.body.title || product.title;
-    product.description = req.body.description || product.description;
-    product.price = req.body.price || product.price;
-    product.category = req.body.category || product.category;
-
-    res.send('product updated successfully');
-  }
+  const { name, price } = req.body;
+  const query = {
+    text: 'UPDATE products SET name = $1, price = $2 WHERE id = $3 RETURNING *',
+    values: [name, price, req.params.id],
+  };
+  pool.query(query)
+    .then((result) => {
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'product not found' });
+      } else {
+        res.json(result.rows[0]);
+      }
+    })
+    .catch((err) => {
+      console.error('Error updating product:', err);
+      res.status(500).json({ error: 'Failed to update product' });
+    });
 });
 
 app.delete('/products/:id', (req, res) => {
-  const index = products.findIndex(product => product.id === parseInt(req.params.id));
-  if (index === -1) {
-    res.status(404).send('product not found');
-  } else {
-    products.splice(index, 1);
-
-    res.send('product deleted successfully');
-  }
+  const query = {
+    text: 'DELETE FROM products WHERE id = $1 RETURNING *',
+    values: [req.params.id],
+  };
+  pool.query(query)
+  .then((result) => {
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'product not found' });
+    } else {
+      res.json(result.rows[0]);
+    }
+  })
+  .catch((err) => {
+    console.error('Error deleting product:', err);
+    res.status(500).json({ error: 'Failed to delete product' });
+  });
 });
 
 app.listen(PORT, () => {
-  console.log(`Running ${PORT}`)
-})
+  console.log(`Server listening on port ${PORT}`);
+});
