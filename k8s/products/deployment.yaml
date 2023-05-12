@@ -12,6 +12,14 @@ spec:
       labels:
         app: products
     spec:
+      initContainers:
+          - name: run-migrations
+            image: volodymyrmushii/products-migration:latest
+            imagePullPolicy: Always
+            command: ["./node_modules/.bin/node-pg-migrate", "up"]
+            env:
+              - name: DATABASE_URL
+                value: "postgres://demo:demo@postgres-products:5432/demo-products"
       containers:
         - name: products
           image: volodymyrmushii/products:latest

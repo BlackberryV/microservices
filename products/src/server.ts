@@ -10,24 +10,13 @@ const app = express();
 
 const pool = new Pool({
   user: "demo",
-  host: "postgres",
-  database: "demo",
+  host: "postgres-products",
+  database: "demo-products",
   password: "demo",
   port: 5432
 })
 
-console.log(pool);
-
 pool.connect()
-  .then(() => {
-    return pool.query(`
-      CREATE TABLE IF NOT EXISTS products (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        price TEXT NOT NULL
-      )
-    `);
-  })
   .then(() => {
     console.log('Successfully connected to database');
   })

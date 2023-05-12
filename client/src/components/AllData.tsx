@@ -84,6 +84,7 @@ export const AllData = () => {
             <thead>
               <h3>Sellers</h3>
               <tr>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Phone Number</th>
               </tr>
@@ -91,6 +92,7 @@ export const AllData = () => {
             <tbody>
               {sellersData?.map((item: any, index) => (
                 <tr key={index}>
+                  <td>{item.id}</td>
                   <td>{item.name}</td>
                   <td>{item.phonenumber}</td>
                 </tr>
@@ -189,6 +191,7 @@ export const AllData = () => {
             <thead>
               <h3>Products</h3>
               <tr>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Price</th>
               </tr>
@@ -196,6 +199,7 @@ export const AllData = () => {
             <tbody>
               {productsData?.map((item: any, index) => (
                 <tr key={index}>
+                  <td>{item.id}</td>
                   <td>{item.name}</td>
                   <td>{item.price}</td>
                 </tr>

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-products
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-products
+  template:
+    metadata:
+      labels:
+        app: postgres-products
+    spec:
+      containers:
+        - name: postgres-products
+          image: postgres:14.1-alpine3.15
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: postgres-products-config
+            - secretRef:
+                name: postgres-products-secret
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgre-products-db
+      volumes:
+        - name: postgre-products-db
+          persistentVolumeClaim:
+            claimName: postgres-products-volume-claim
