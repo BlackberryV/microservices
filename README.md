@@ -1,10 +1,16 @@
-# Лабораторна робота №1.
+# запуск проекту
+# ввести наступні команди в корінній директорії проекту
 
-### Тема: Розгортання додатку в середовищі _Kubernetes._
+kind create cluster --config ./k8s/Common/cluster.yaml
 
-### Завдання:
+kubectl apply -f ./k8s/Common/ingress.yaml
 
-1. Створити кластер _Kubernetes_.
-2. Реалізувати кілька сервісів (1 сервіс на студента + клієнт). Описати для них _Dockerfile_.
-3. Розгорнути сервіси в середовищі _Kubernetes_.
-4. Реалізувати доступ до сервісів за допомогою _Ingress_.
+kubectl apply -f ./k8s/postgres-products
+
+kubectl apply -f ./k8s/postgres
+
+kubectl apply -f ./k8s/sellers
+
+kubectl apply -f ./k8s/products
+
+готово до використовування
