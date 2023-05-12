@@ -1,10 +1,10 @@
-'use strict'
+"use strict";
 
-const express = require('express')
-const bodyParser = require('body-parser');
-const { Pool } = require('pg');
-var cors = require('cors')
-const PORT = 8080
+const express = require("express");
+const bodyParser = require("body-parser");
+const { Pool } = require("pg");
+var cors = require("cors");
+const PORT = 8080;
 
 const app = express();
 
@@ -13,112 +13,111 @@ const pool = new Pool({
   host: "postgres",
   database: "demo",
   password: "demo",
-  port: 5432
-})
+  port: 5432,
+});
 
-console.log(pool);
-
-pool.connect()
+pool
+  .connect()
   .then(() => {
-    return pool.query(`
-      CREATE TABLE IF NOT EXISTS sellers (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        phoneNumber TEXT NOT NULL
-      )
-    `);
+    // `SELECT * FROM sellers`;
   })
-  .then(() => {
-    console.log('Successfully connected to database');
+  .then((res: any) => {
+    console.log(res);
+    console.log("Successfully connected to database");
   })
   .catch((err) => {
-    console.error('Error connecting to database:', err);
+    console.error("Error connecting to database:", err);
   });
 
 app.use(bodyParser.json());
 app.use(cors());
 
-app.get('/sellers/:id', (req, res) => {
+app.get("/sellers/:id", (req, res) => {
   const query = {
-    text: 'SELECT * FROM sellers WHERE id = $1',
+    text: "SELECT * FROM sellers WHERE id = $1",
     values: [req.params.id],
   };
-  pool.query(query)
+  pool
+    .query(query)
     .then((result) => {
       if (result.rows.length === 0) {
-        res.status(404).json({ error: 'seller not found' });
+        res.status(404).json({ error: "seller not found" });
       } else {
         res.json(result.rows[0]);
       }
     })
     .catch((err) => {
       console.log(query);
-      res.status(500).json({ error: 'Failed to retrieve seller' });
+      res.status(500).json({ error: "Failed to retrieve seller" });
     });
 });
 
-app.get('/sellers', (req, res) => {
+app.get("/sellers", (req, res) => {
   const query = {
-    text: 'SELECT * FROM sellers',
+    text: "SELECT * FROM sellers",
   };
-  pool.query(query)
+  pool
+    .query(query)
     .then((result) => res.json(result.rows))
     .catch((err) => {
-      res.status(500).json({ error: 'Failed to retrieve sellers' });
+      res.status(500).json({ error: "Failed to retrieve sellers" });
     });
 });
 
-app.post('/sellers', (req, res) => {
+app.post("/sellers", (req, res) => {
   const { name, phoneNumber } = req.body;
   const query = {
-    text: 'INSERT INTO sellers(name, phoneNumber) VALUES($1, $2) RETURNING *',
+    text: "INSERT INTO sellers(name, phoneNumber) VALUES($1, $2) RETURNING *",
     values: [name, phoneNumber],
   };
-  pool.query(query)
+  pool
+    .query(query)
     .then((result) => res.status(201).json(result.rows[0]))
     .catch((err) => {
-      console.error('Error adding seller:', err);
-      res.status(500).json({ error: 'Failed to add seller' });
+      console.error("Error adding seller:", err);
+      res.status(500).json({ error: "Failed to add seller" });
     });
 });
 
-app.put('/sellers/:id', (req, res) => {
+app.put("/sellers/:id", (req, res) => {
   const { name, phoneNumber } = req.body;
   const query = {
-    text: 'UPDATE sellers SET name = $1, phoneNumber = $2 WHERE id = $3 RETURNING *',
+    text: "UPDATE sellers SET name = $1, phoneNumber = $2 WHERE id = $3 RETURNING *",
     values: [name, phoneNumber, req.params.id],
   };
-  pool.query(query)
+  pool
+    .query(query)
     .then((result) => {
       if (result.rows.length === 0) {
-        res.status(404).json({ error: 'seller not found' });
+        res.status(404).json({ error: "seller not found" });
       } else {
         res.json(result.rows[0]);
       }
     })
     .catch((err) => {
-      console.error('Error updating seller:', err);
-      res.status(500).json({ error: 'Failed to update seller' });
+      console.error("Error updating seller:", err);
+      res.status(500).json({ error: "Failed to update seller" });
     });
 });
 
-app.delete('/sellers/:id', (req, res) => {
+app.delete("/sellers/:id", (req, res) => {
   const query = {
-    text: 'DELETE FROM sellers WHERE id = $1 RETURNING *',
+    text: "DELETE FROM sellers WHERE id = $1 RETURNING *",
     values: [req.params.id],
   };
-  pool.query(query)
-  .then((result) => {
-    if (result.rows.length === 0) {
-      res.status(404).json({ error: 'seller not found' });
-    } else {
-      res.json(result.rows[0]);
-    }
-  })
-  .catch((err) => {
-    console.error('Error deleting seller:', err);
-    res.status(500).json({ error: 'Failed to delete seller' });
-  });
+  pool
+    .query(query)
+    .then((result) => {
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: "seller not found" });
+      } else {
+        res.json(result.rows[0]);
+      }
+    })
+    .catch((err) => {
+      console.error("Error deleting seller:", err);
+      res.status(500).json({ error: "Failed to delete seller" });
+    });
 });
 
 app.listen(PORT, () => {

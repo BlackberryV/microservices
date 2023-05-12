@@ -89,7 +89,7 @@ export const AllData = () => {
               </tr>
             </thead>
             <tbody>
-              {sellersData.map((item: any, index) => (
+              {sellersData?.map((item: any, index) => (
                 <tr key={index}>
                   <td>{item.name}</td>
                   <td>{item.phonenumber}</td>
@@ -194,7 +194,7 @@ export const AllData = () => {
               </tr>
             </thead>
             <tbody>
-              {productsData.map((item: any, index) => (
+              {productsData?.map((item: any, index) => (
                 <tr key={index}>
                   <td>{item.name}</td>
                   <td>{item.price}</td>

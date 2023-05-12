@@ -19,6 +19,14 @@ spec:
         nginx.ingress.kubernetes.io/enable-cors: "false"
         nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, DELETE, OPTIONS"
     spec:
+      initContainers:
+          - name: run-migrations
+            image: volodymyrmushii/sellers-migration:latest
+            imagePullPolicy: Always
+            command: ["./node_modules/.bin/node-pg-migrate", "up"]
+            env:
+              - name: DATABASE_URL
+                value: "postgres://demo:demo@postgres:5432/demo"
       containers:
         - name: sellers
           image: volodymyrmushii/sellers:latest
