@@ -10,8 +10,8 @@ const app = express();
 
 const pool = new Pool({
   user: "demo",
-  host: "postgres-products",
-  database: "demo-products",
+  host: "local-postgresql",
+  database: "demo",
   password: "demo",
   port: 5432
 })
