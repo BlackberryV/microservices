@@ -9,7 +9,7 @@ migrations:
     name: sellers-migration
     tag: latest
   config:
-    DATABASE_URL: "postgres://demo:demo@local-postgresql:5432/demo"
+    DATABASE_URL: "postgres://demo:demo@postgres:5432/demo"
 
 configs:
   POSTGRES_DB: demo

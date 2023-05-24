@@ -6,4 +6,4 @@ dependencies:
   repository: file://charts/common
   version: 0.1.0
 digest: sha256:f3dcb5edb324af215c9c299c783f0973e2f067fa3217f30fa36c953c4c103851
-generated: "2023-05-16T22:55:45.104436863+03:00"
+generated: "2023-05-24T23:03:42.894697+03:00"

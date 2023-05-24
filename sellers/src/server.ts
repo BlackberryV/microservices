@@ -3,14 +3,16 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { Pool } = require("pg");
+const axios = require("axios");
 var cors = require("cors");
+
 const PORT = 8080;
 
 const app = express();
 
 const pool = new Pool({
   user: "demo",
-  host: "local-postgresql",
+  host: "postgres",
   database: "demo",
   password: "demo",
   port: 5432,
@@ -64,8 +66,14 @@ app.get("/sellers", (req, res) => {
     });
 });
 
-app.post("/sellers", (req, res) => {
+app.post("/sellers", async (req, res) => {
   const { name, phoneNumber } = req.body;
+  const products = `http://products-service:80/products`;
+  const allProducts = await axios.get(products);
+  if (!allProducts.data) {
+    return res.status(404).json({ error: "Vegetable not found" });
+  }
+  console.log(allProducts.data.filter((item) => item.price > 12));
   const query = {
     text: "INSERT INTO sellers(name, phoneNumber) VALUES($1, $2) RETURNING *",
     values: [name, phoneNumber],
