@@ -37,7 +37,7 @@ kubectl port-forward pod/istio-test 8081
 http://localhost:8081/istio/breakpod
 http://localhost:8081/istio/revive
 
-для разних маніпуляцій з подом та можемо тестувати стан поду за наступною лінкою
+для різних маніпуляцій з подом та можемо тестувати стан поду за наступною лінкою
 
 http://localhost:8081/istio/slow-test
 
