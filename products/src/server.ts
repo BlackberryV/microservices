@@ -4,6 +4,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { Pool } = require("pg");
 var cors = require("cors");
+const timeout = require("connect-timeout");
+let breaked = 0;
+let slowed = 0;
+
 const PORT = 8080;
 
 const app = express();
@@ -28,6 +32,24 @@ pool
 app.use(bodyParser.json());
 app.use(cors());
 
+app.get("/products/slowpod", (req, res) => {
+  breaked = 0;
+  slowed = 1;
+  res.send("slowed");
+});
+
+app.get("/products/breakpod", (req, res) => {
+  slowed = 0;
+  breaked = 1;
+  res.send("breakpod");
+});
+
+app.get("/products/revive", (req, res) => {
+  slowed = 0;
+  breaked = 0;
+  res.json({ "slowed:": slowed, breaked: breaked });
+});
+
 app.get("/products/:id", (req, res) => {
   const query = {
     text: "SELECT * FROM products WHERE id = $1",
@@ -49,15 +71,33 @@ app.get("/products/:id", (req, res) => {
 });
 
 app.get("/products", (req, res) => {
-  const query = {
-    text: "SELECT * FROM products",
-  };
-  pool
-    .query(query)
-    .then((result) => res.json(result.rows))
-    .catch((err) => {
-      res.status(500).json({ error: "Failed to retrieve products" });
-    });
+  if (breaked == 1) {
+    setTimeout(function () {
+      res.sendStatus(500);
+    }, 4000);
+  } else if (slowed == 1) {
+    setTimeout(function () {
+      const query = {
+        text: "SELECT * FROM products",
+      };
+      pool
+        .query(query)
+        .then((result) => res.json(result.rows))
+        .catch((err) => {
+          res.status(500).json({ error: "Failed to retrieve products" });
+        });
+    }, 2500);
+  } else {
+    const query = {
+      text: "SELECT * FROM products",
+    };
+    pool
+      .query(query)
+      .then((result) => res.json(result.rows))
+      .catch((err) => {
+        res.status(500).json({ error: "Failed to retrieve products" });
+      });
+  }
 });
 
 app.post("/products", (req, res) => {
