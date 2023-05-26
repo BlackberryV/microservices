@@ -27,14 +27,20 @@ helm install name v5
 # Для тесту breaker і retry прописуємо наступні команди в корінній папці проекту
 
 kubectl apply -f k8s/istio/braker
+
 kubectl apply -f k8s/istio/retry
+
 kubectl apply -f k8s/test-pod.yaml
+
 kubectl port-forward pod/istio-test 8081
+
 
 # Тепер в нас запущено дві репліки поду продуктів для тесту breaker і retry
 
 щоб протестувати переходимо на
+
 http://localhost:8081/istio/breakpod
+
 http://localhost:8081/istio/revive
 
 для різних маніпуляцій з подом та можемо тестувати стан поду за наступною лінкою
