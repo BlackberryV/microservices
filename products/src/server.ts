@@ -66,9 +66,10 @@ app.get("/products", (req, res) => {
 
 app.post("/products", (req, res) => {
   const { name, price } = req.body;
+  const count = 0;
   const query = {
-    text: "INSERT INTO products(name, price) VALUES($1, $2) RETURNING *",
-    values: [name, price],
+    text: "INSERT INTO products(name, price, count) VALUES($1, $2, $3) RETURNING *",
+    values: [name, price, count],
   };
   pool
     .query(query)
@@ -80,10 +81,10 @@ app.post("/products", (req, res) => {
 });
 
 app.put("/products/:id", (req, res) => {
-  const { name, price } = req.body;
+  const { name, price, count } = req.body;
   const query = {
-    text: "UPDATE products SET name = $1, price = $2 WHERE id = $3 RETURNING *",
-    values: [name, price, req.params.id],
+    text: "UPDATE products SET name = $1, price = $2, count = $3 WHERE id = $4 RETURNING *",
+    values: [name, price, count, req.params.id],
   };
   pool
     .query(query)

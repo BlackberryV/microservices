@@ -36,11 +36,12 @@ export const deleteProduct = (id) => {
     });
 };
 
-export const editProduct = (id, name, price) => {
+export const editProduct = (id, name, price, count) => {
   return axios
     .put(`${productsApiUrl}${id}`, {
       name: name,
-      price: price, 
+      price: price,
+      count: Number(count),
     })
     .then((response) => {
       return response.data;

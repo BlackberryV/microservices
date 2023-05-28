@@ -36,11 +36,12 @@ export const deleteSeller = (id) => {
     });
 };
 
-export const editSeller = (id, name, phoneNumber) => {
+export const editSeller = (id, name, phoneNumber, count) => {
   return axios
     .put(`${sellersApiUrl}${id}`, {
       name: name,
       phoneNumber: phoneNumber,
+      count: Number(count),
     })
     .then((response) => {
       return response.data;

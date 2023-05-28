@@ -1,27 +1,46 @@
 "use client";
 import { FormEvent, useEffect, useState } from "react";
-import { createProduct, deleteProduct, editProduct, getProducts } from "../api/products";
+import {
+  createProduct,
+  deleteProduct,
+  editProduct,
+  getProducts,
+} from "../api/products";
 import {
   createSeller,
   deleteSeller,
   editSeller,
   getSellers,
 } from "../api/sellers";
+import { getOrders, createOrder } from "../api/orders";
 
 export const AllData = () => {
   const [sellersData, setSellersData] = useState([]);
   const [productsData, setProductsData] = useState([]);
+  const [ordersData, setOrdersData] = useState([]);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [name, setName] = useState("");
   const [id, setId] = useState("");
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productId, setProductId] = useState("");
+  const [count, setCount] = useState(0);
+  const [orderSellerId, setOrderSellerId] = useState(1);
+  const [orderProductId, setOrderProductId] = useState(1);
 
   useEffect(() => {
     getSellers().then((sellers) => setSellersData(sellers));
     getProducts().then((products) => setProductsData(products));
+    getOrders().then((orders) => setOrdersData(orders));
   }, []);
+
+  const addOrderHandler = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await createOrder(orderSellerId, orderProductId);
+    getOrders().then((orders) => setOrdersData(orders));
+    setOrderSellerId(1);
+    setOrderProductId(1);
+  };
 
   const addSellerHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -42,22 +61,23 @@ export const AllData = () => {
 
   const editSellerHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await editSeller(id, name, phoneNumber);
+    await editSeller(id, name, phoneNumber, count);
     getSellers().then((sellers) => setSellersData(sellers));
     setName("");
     setPhoneNumber("");
     setId("");
+    setCount(0);
   };
 
   const editProductHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await editProduct(productId, productName, productPrice);
+    await editProduct(productId, productName, productPrice, count);
     getProducts().then((products) => setProductsData(products));
     setProductName("");
     setProductPrice("");
     setProductId("");
+    setCount(0);
   };
-
 
   const addProductHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -77,7 +97,15 @@ export const AllData = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "row", justifyContent: 'space-between', width: '70vw', margin: '20px auto' }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "70vw",
+        margin: "20px auto",
+      }}
+    >
       <div style={{ display: "flex", flexDirection: "column", gap: 90 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
           <table>
@@ -87,6 +115,7 @@ export const AllData = () => {
                 <th>ID</th>
                 <th>Name</th>
                 <th>Phone Number</th>
+                <th>number of items sold</th>
               </tr>
             </thead>
             <tbody>
@@ -95,6 +124,7 @@ export const AllData = () => {
                   <td>{item.id}</td>
                   <td>{item.name}</td>
                   <td>{item.phonenumber}</td>
+                  <td>{item.count}</td>
                 </tr>
               ))}
             </tbody>
@@ -182,6 +212,14 @@ export const AllData = () => {
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </label>
+          <label>
+            Count:
+            <input
+              type="number"
+              value={count}
+              onChange={(e) => setCount(Number(e.target.value))}
+            />
+          </label>
           <button type="submit">Edit</button>
         </form>
       </div>
@@ -194,6 +232,7 @@ export const AllData = () => {
                 <th>ID</th>
                 <th>Name</th>
                 <th>Price</th>
+                <th>number of items sold</th>
               </tr>
             </thead>
             <tbody>
@@ -202,6 +241,7 @@ export const AllData = () => {
                   <td>{item.id}</td>
                   <td>{item.name}</td>
                   <td>{item.price}</td>
+                  <td>{item.count}</td>
                 </tr>
               ))}
             </tbody>
@@ -289,7 +329,68 @@ export const AllData = () => {
               onChange={(e) => setProductPrice(e.target.value)}
             />
           </label>
+          <label>
+            Count:
+            <input
+              type="number"
+              value={count}
+              onChange={(e) => setCount(Number(e.target.value))}
+            />
+          </label>
           <button type="submit">Edit</button>
+        </form>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 90 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
+          <table>
+            <thead>
+              <h3>Orders</h3>
+              <tr>
+                <th>ID</th>
+                <th>Seller ID</th>
+                <th>Product ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ordersData?.map((item: any, index) => (
+                <tr key={index}>
+                  <td>{item.id}</td>
+                  <td>{item.sellerid}</td>
+                  <td>{item.productid}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <form
+          onSubmit={addOrderHandler}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <b>create order</b>
+          <label>
+            Seller ID:
+            <input
+              type="number"
+              min="1"
+              value={orderSellerId}
+              onChange={(e) => setOrderSellerId(Number(e.target.value))}
+            />
+          </label>
+          <label>
+            Product ID:
+            <input
+              type="number"
+              min="1"
+              value={orderProductId}
+              onChange={(e) => setOrderProductId(Number(e.target.value))}
+            />
+          </label>
+          <button type="submit">Submit</button>
         </form>
       </div>
     </div>

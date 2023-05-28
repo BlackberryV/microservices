@@ -1,12 +1,12 @@
 image:
   dockerNamespace: volodymyrmushii/
-  name: sellers
+  name: orders
   tag: latest
 
 migrations:
   image:
     dockerNamespace: volodymyrmushii/
-    name: sellers-migration
+    name: orders-migration
     tag: latest
   config:
     DATABASE_URL: "postgres://demo:demo@postgres:5432/demo"
@@ -26,5 +26,5 @@ service:
       containerPort: 8080
 
 ingress:
-  path: /sellers
+  path: /orders
   port: http

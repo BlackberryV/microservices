@@ -68,9 +68,10 @@ app.get("/sellers", (req, res) => {
 
 app.post("/sellers", (req, res) => {
   const { name, phoneNumber } = req.body;
+  const count = 0;
   const query = {
-    text: "INSERT INTO sellers(name, phoneNumber) VALUES($1, $2) RETURNING *",
-    values: [name, phoneNumber],
+    text: "INSERT INTO sellers(name, phoneNumber, count) VALUES($1, $2, $3) RETURNING *",
+    values: [name, phoneNumber, count],
   };
   pool
     .query(query)
@@ -82,10 +83,10 @@ app.post("/sellers", (req, res) => {
 });
 
 app.put("/sellers/:id", (req, res) => {
-  const { name, phoneNumber } = req.body;
+  const { name, phoneNumber, count } = req.body;
   const query = {
-    text: "UPDATE sellers SET name = $1, phoneNumber = $2 WHERE id = $3 RETURNING *",
-    values: [name, phoneNumber, req.params.id],
+    text: "UPDATE sellers SET name = $1, phoneNumber = $2, count = $3 WHERE id = $4 RETURNING *",
+    values: [name, phoneNumber, count, req.params.id],
   };
   pool
     .query(query)
