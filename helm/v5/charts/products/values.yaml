@@ -2,7 +2,6 @@ image:
   dockerNamespace: volodymyrmushii/
   name: products
   tag: latest
-replicaCount: 2
 migrations:
   image:
     dockerNamespace: volodymyrmushii/

@@ -66,14 +66,8 @@ app.get("/sellers", (req, res) => {
     });
 });
 
-app.post("/sellers", async (req, res) => {
+app.post("/sellers", (req, res) => {
   const { name, phoneNumber } = req.body;
-  const products = `http://products-service:80/products`;
-  const allProducts = await axios.get(products);
-  if (!allProducts.data) {
-    return res.status(404).json({ error: "Vegetable not found" });
-  }
-  console.log(allProducts.data.filter((item) => item.price > 12));
   const query = {
     text: "INSERT INTO sellers(name, phoneNumber) VALUES($1, $2) RETURNING *",
     values: [name, phoneNumber],
