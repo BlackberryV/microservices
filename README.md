@@ -6,45 +6,28 @@ kind create cluster --config ./k8s/Common/cluster.yaml
 
 kubectl apply -f ./k8s/Common/ingress.yaml
 
-kubectl create namespace istio-system
+# еплаїмо rabitmq
 
-helm install istio-base istio/base -n istio-system
+kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
 
-helm install istiod istio/istiod -n istio-system --wait
+kubectl apply -f https://raw.githubusercontent.com/rabbitmq/cluster-operator/main/docs/examples/hello-world/rabbitmq.yaml
 
-kubectl label namespace default istio-injection=enabled
+# отримаємо пароль та ім'я юзера для того, щоб вставити їх в посилання для конекту, також форвардимо порт для роботи з rabitmq
 
-kubectl apply -f ./k8s/istio/breaker
+kubectl get secret hello-world-default-user -o jsonpath='{.data.username}'
 
-kubectl apply -f ./k8s/istio/retry
+kubectl get secret hello-world-default-user -o jsonpath='{.data.password}'
 
-# в папці helm пишемо
+kubectl port-forward "service/hello-world" 15672
+
+# для helm пишемо
+
+helm dep build helm/v5/charts/orders
+
+helm dep build helm/v5/charts/sellers
+
+helm dep build helm/v5/charts/products
 
 helm install name v5
 
 готово до використовування
-
-# Для тесту breaker і retry прописуємо наступні команди в корінній папці проекту
-
-kubectl apply -f k8s/istio/braker
-
-kubectl apply -f k8s/istio/retry
-
-kubectl apply -f k8s/test-pod.yaml
-
-kubectl port-forward pod/istio-test 8081
-
-
-# Тепер в нас запущено дві репліки поду продуктів для тесту breaker і retry
-
-щоб протестувати переходимо на
-
-http://localhost:8081/istio/breakpod
-
-http://localhost:8081/istio/revive
-
-для різних маніпуляцій з подом та можемо тестувати стан поду за наступною лінкою
-
-http://localhost:8081/istio/slow-test
-
-# насолоджуємось роботою, якщо цим можна насолоджуватись, звісно)))

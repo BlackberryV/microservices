@@ -4,9 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { Pool } = require("pg");
 var cors = require("cors");
-const timeout = require("connect-timeout");
-let breaked = 0;
-let slowed = 0;
+const amqp = require("amqplib");
 
 const PORT = 8080;
 
@@ -28,6 +26,45 @@ pool
   .catch((err) => {
     console.error("Error connecting to database:", err);
   });
+
+let channel;
+
+async function connect() {
+  const amqpServer =
+    "amqp://default_user_XL1VozNCfiB4lk4yvb_:iaO-b_3MW2KX1eME4vYZy2KAunHW_yNl@hello-world:5672";
+  const connection = await amqp.connect(amqpServer);
+  channel = await connection.createChannel();
+  const queueName = "PRODUCTS_QUEUE";
+  await channel.assertQueue(queueName, { durable: true });
+  channel.consume(queueName, (message) => {
+    const content = message.content.toString();
+    const { productId } = JSON.parse(content);
+
+    addToDatabase(productId)
+      .then(() => {
+        channel.ack(message);
+      })
+      .catch((error) => {
+        console.error("Failed to edit count:", error);
+        channel.reject(message, false);
+      });
+  });
+}
+connect();
+
+async function addToDatabase(productId) {
+  const query = {
+    text: "UPDATE products SET count = count + 1 WHERE id = $1 RETURNING *",
+    values: [productId],
+  };
+
+  try {
+    const result = await pool.query(query);
+    console.log(`completed: ${result.rows}`);
+  } catch (err) {
+    console.error("Failed to edit count:", err);
+  }
+}
 
 app.use(bodyParser.json());
 app.use(cors());

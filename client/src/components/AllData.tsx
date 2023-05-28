@@ -34,6 +34,13 @@ export const AllData = () => {
     getOrders().then((orders) => setOrdersData(orders));
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => {
+      getSellers().then((sellers) => setSellersData(sellers));
+      getProducts().then((products) => setProductsData(products));
+    }, 1000);
+  }, [ordersData]);
+
   const addOrderHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     await createOrder(orderSellerId, orderProductId);

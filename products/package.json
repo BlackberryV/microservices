@@ -19,6 +19,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "amqplib": "^0.10.3",
     "connect-timeout": "^1.9.0",
     "cors": "^2.8.5",
     "pg": "^8.10.0"
