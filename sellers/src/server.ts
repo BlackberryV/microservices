@@ -5,7 +5,6 @@ const bodyParser = require("body-parser");
 const { Pool } = require("pg");
 const axios = require("axios");
 var cors = require("cors");
-const amqp = require("amqplib");
 
 const PORT = 8080;
 
@@ -32,45 +31,6 @@ pool
     console.error("Error connecting to database:", err);
   });
 
-let channel;
-
-async function connect() {
-  const amqpServer =
-    "amqp://default_user_XL1VozNCfiB4lk4yvb_:iaO-b_3MW2KX1eME4vYZy2KAunHW_yNl@hello-world:5672";
-  const connection = await amqp.connect(amqpServer);
-  channel = await connection.createChannel();
-  const queueName = "SELLERS_QUEUE";
-  await channel.assertQueue(queueName, { durable: true });
-  channel.consume(queueName, (message) => {
-    const content = message.content.toString();
-    const { sellerId } = JSON.parse(content);
-
-    addToDatabase(sellerId)
-      .then(() => {
-        channel.ack(message);
-      })
-      .catch((error) => {
-        console.error("Failed to edit count:", error);
-        channel.reject(message, false);
-      });
-  });
-}
-connect();
-
-async function addToDatabase(sellerId) {
-  const query = {
-    text: "UPDATE sellers SET count = count + 1 WHERE id = $1 RETURNING *",
-    values: [sellerId],
-  };
-
-  try {
-    const result = await pool.query(query);
-    console.log(`completed: ${result.rows}`);
-  } catch (err) {
-    console.error("Failed to edit count:", err);
-  }
-}
-
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -86,6 +46,7 @@ app.get("/sellers/:id", (req, res) => {
         res.status(404).json({ error: "seller not found" });
       } else {
         res.json(result.rows[0]);
+        console.log("retrieved seller");
       }
     })
     .catch((err) => {
@@ -100,7 +61,10 @@ app.get("/sellers", (req, res) => {
   };
   pool
     .query(query)
-    .then((result) => res.json(result.rows))
+    .then((result) => {
+      res.json(result.rows);
+      console.log("retrieved all sellers");
+    })
     .catch((err) => {
       res.status(500).json({ error: "Failed to retrieve sellers" });
     });
@@ -115,7 +79,10 @@ app.post("/sellers", (req, res) => {
   };
   pool
     .query(query)
-    .then((result) => res.status(201).json(result.rows[0]))
+    .then((result) => {
+      res.status(201).json(result.rows[0]);
+      console.log("created seller");
+    })
     .catch((err) => {
       console.error("Error adding seller:", err);
       res.status(500).json({ error: "Failed to add seller" });
@@ -135,6 +102,7 @@ app.put("/sellers/:id", (req, res) => {
         res.status(404).json({ error: "seller not found" });
       } else {
         res.json(result.rows[0]);
+        console.log("updated seller");
       }
     })
     .catch((err) => {
@@ -155,6 +123,7 @@ app.delete("/sellers/:id", (req, res) => {
         res.status(404).json({ error: "seller not found" });
       } else {
         res.json(result.rows[0]);
+        console.log("deleted seller");
       }
     })
     .catch((err) => {
