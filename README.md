@@ -14,6 +14,9 @@ kubectl apply -f k8s/logging
 
 kubectl port-forward svc/kibana-np 8080 
 
+щоб проходили запити з клієнта пропишемо
+
+sudo minikube tunnel
 
 # для helm пишемо
 
