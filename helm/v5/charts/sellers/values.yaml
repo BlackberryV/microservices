@@ -3,6 +3,8 @@ image:
   name: sellers
   tag: latest
 
+scrapePath: /vegetables/metrics
+
 migrations:
   image:
     dockerNamespace: volodymyrmushii/

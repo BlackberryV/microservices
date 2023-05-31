@@ -6,6 +6,17 @@ const { Pool } = require("pg");
 const axios = require("axios");
 var cors = require("cors");
 
+// For another labs (IIT)
+// const client = require("prom-client");
+// const collectDefaultMetrics = client.collectDefaultMetrics;
+
+// const Registry = client.Registry;
+// const register = new Registry();
+// register.setDefaultLabels({
+//   app: "example-nodejs-app",
+// });
+// client.collectDefaultMetrics({ register });
+
 const PORT = 8080;
 
 const app = express();
@@ -131,6 +142,13 @@ app.delete("/sellers/:id", (req, res) => {
       res.status(500).json({ error: "Failed to delete seller" });
     });
 });
+
+// For another labs (IIT)
+// app.get("/sellers/metrics", async (req, res) => {
+//   res.set("Content-Type", register.contentType);
+//   let metrics = await register.metrics();
+//   res.send(metrics);
+// });
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
